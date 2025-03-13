@@ -254,7 +254,8 @@ def get_now_data():
 
     for sv in list_of_data:
         try:
-            epoch_time = Time(sv["EPOCH"], format="isot", scale="utc").unix
+            epoch_time = Time(sv["EPOCH"], format="yday", scale="utc").unix
+
             time_diff = abs(now - epoch_time)
 
             if time_diff < closest_time_diff:
