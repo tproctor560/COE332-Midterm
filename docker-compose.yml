@@ -1,23 +1,25 @@
 version: "3"
 
 services:
-    redis-db:
-        image: redis:7
-        container_name: redis-db
-        ports:
-          - 6379:6379
-        volumes:
-          - ./data:/data
-        user: "1000:1000"
-        command: ["--save", "1", "1"]
-        restart: always
-    flask-app:
-        build: .
-          context: ./
-          dockerfile: Dockerfile
-        depends_on:
-          - redis-db
-        container_name: flask-app
-        ports:
-          - 5000:5000
-        restart: always
+  redis-db:
+    image: redis:7
+    container_name: redis-db
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data:/data
+    user: "1000:1000"
+    command: ["--save", "1", "1"]
+    restart: always
+
+  flask-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - redis-db
+    container_name: flask-app
+    ports:
+      - 5000:5000
+    restart: always
+
