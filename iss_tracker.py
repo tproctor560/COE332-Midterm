@@ -254,7 +254,10 @@ def get_now_data():
 
     for sv in list_of_data:
         try:
-            epoch_time = Time(sv["EPOCH"], format="yday", scale="utc", precision=9).unix
+            # Convert '2025-084T10:46:30.000Z' -> '2025:084:10:46:30.000'
+            fixed_epoch = sv["EPOCH"].replace("-", ":").replace("T", ":")[:-1]  # Remove trailing 'Z'
+            epoch_time = Time(fixed_epoch, format="yday", scale="utc").unix
+
 
             time_diff = abs(now - epoch_time)
 
