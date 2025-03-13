@@ -1,3 +1,56 @@
+@app.route('/debug-cache', methods=['GET'])
+def debug_cache():
+    """
+    Debug endpoint to check if ISS data is in Redis. If missing, fetches and stores it.
+    """
+    data = rd.get(ISS_data)
+    if data:
+        logging.info(f"Data found in Redis: {data}")
+        return jsonify({"status": "found", "data": json.loads(data)})
+    else:
+        logging.info("Data not found in Redis. Fetching new data...")
+        fetch_and_store_iss_data()
+        return jsonify({"status": "not found"}), 404
+def url_xml_pull(url: str):
+    """
+    Fetches XML data from a URL and stores it in Redis if not already cached.
+    """
+    data = rd.get(ISS_data)
+    if data:
+        logging.info("Data retrieved from Redis cache.")
+        return json.loads(data)
+
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = xmltodict.parse(response.text)
+            json_data = json.dumps(data)
+            rd.set(ISS_data, json_data)  # Cache the data in Redis
+            logging.info(f"Data successfully retrieved and stored from {url}")
+            return data
+        else:
+            logging.error(f"Failed to retrieve data from {url}. Status code: {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logging.error(f"RequestException: Failed to fetch data from {url} due to: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Unexpected error in url_xml_pull: {e}")
+        return None
+
+def read_data_from_xml(filepath: str):
+    """
+    Reads and parses XML data from a local file (fallback method).
+    """
+    try:
+        with open(filepath, "r") as f:
+            data = xmltodict.parse(f.read())
+        return data
+    except Exception as e:
+        logging.error(f"Error reading XML file: {e}")
+        return None
+
+
 @app.before_first_request
 def startup():
     load_iss_data()
