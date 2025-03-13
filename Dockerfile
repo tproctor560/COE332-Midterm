@@ -1,7 +1,6 @@
 FROM python:3.12
 
-RUN pip3 install pytest requests xmltodict flask
-
+RUN pip3 install pytest requests xmltodict flask astropy geopy
 
 COPY iss_tracker.py /code/iss_tracker.py
 
