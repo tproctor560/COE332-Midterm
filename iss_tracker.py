@@ -19,6 +19,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 ISS_DATA_URL = "https://api.wheretheiss.at/v1/satellites/25544"
 
+@app.route('/debug-cache', methods=['GET'])
+def debug_cache():
+    data = redis_client.get("iss_state_vector_data")
+    if data:
+        return jsonify({"status": "found", "data": json.loads(data)})
+    else:
+        return jsonify({"status": "not found"}), 404
+
 def url_xml_pull(url: str):
 
     """
