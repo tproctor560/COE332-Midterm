@@ -100,7 +100,24 @@ def find_data_point(data, *keys):
         raise AttributeError()
     
 
+def compute_location_astropy(sv):
+    """ Computes latitude, longitude, and altitude using Astropy. """
+    x = float(sv['X']['#text'])
+    y = float(sv['Y']['#text'])
+    z = float(sv['Z']['#text'])
 
+    # Convert the given EPOCH to a proper datetime object
+    epoch_time = Time(sv['EPOCH'], format='isot', scale='utc')
+
+    # Convert Cartesian coordinates to Earth-based coordinates
+    cartrep = coordinates.CartesianRepresentation([x, y, z], unit=units.km)
+    gcrs = coordinates.GCRS(cartrep, obstime=epoch_time)
+    itrs = gcrs.transform_to(coordinates.ITRS(obstime=epoch_time))
+    loc = coordinates.EarthLocation(*itrs.cartesian.xyz)
+
+    # Extract latitude, longitude, and altitude
+    latitude, longitude, altitude = loc.lat.value, loc.lon.value, loc.height.value
+    return latitude, longitude, altitude
 
 def instantaneous_speed(x: float, y: float, z: float) -> float:
     """
@@ -185,19 +202,37 @@ def get_instantaneous_speed(epoch):
             return jsonify({"epoch": epoch, "speed": speed}) 
     return jsonify({"error": "epoch not found"}), 404
 
-@app.route('/epochs/<epoch>/location', methods=['GET']
+@app.route('/epochs/<epoch>/location', methods=['GET'])
 def location_finder(epoch):
     """
-    This function XXX
-
-    Args:
-
-    Returns: 
-
+    Returns the latitude, longitude, altitude, and geoposition of the ISS for a given epoch.
     """
     url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
     data = url_xml_pull(url)
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
+
+    if not list_of_data:
+        return jsonify({"error": "No state vector data found"}), 404
+
+    for sv in list_of_data:
+        if sv["EPOCH"] == epoch:
+            latitude, longitude, altitude = compute_location_astropy(sv)
+
+            # Use GeoPy to get location name from lat/lon
+            geolocator = Nominatim(user_agent="iss_tracker")
+            location = geolocator.reverse((latitude, longitude), language="en", zoom=5)
+            geoposition = location.address if location else "Unknown location"
+
+            return jsonify({
+                "epoch": epoch,
+                "latitude": latitude,
+                "longitude": longitude,
+                "altitude_km": altitude,
+                "geoposition": geoposition
+            })
+
+    return jsonify({"error": "Epoch not found"}), 404
+    
 @app.route('/now', methods=['GET'])
 def get_now_data():
     """
