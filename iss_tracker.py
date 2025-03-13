@@ -259,7 +259,7 @@ def location(epoch):
                 "latitude": lat,
                 "longitude": lon,
                 "altitude": alt,
-                "geoposition": geoloc
+                "geoposition": geoloc if geoloc else "ISS is over the ocean"
             })
     
     return jsonify({"error": "epoch not found"}), 404
