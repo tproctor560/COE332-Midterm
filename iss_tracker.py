@@ -231,23 +231,25 @@ def location(epoch):
     This function returns the latitude, longitude, altitude, and geoposition for the given epoch.
     """
     data = redis_client.get("iss_state_vector_data")
+    
     if not data:
         url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
         data = url_xml_pull(url)
+    
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
     
-    for sv in list_of_data:
-        if sv["EPOCH"] == epoch:
-            lat, lon, alt = compute_location_astropy(sv)
-            geoloc = get_geolocation(lat, lon)
-            return jsonify({
-                "latitude": lat,
-                "longitude": lon,
-                "altitude": alt,
-                "geoposition": geoloc if geoloc else "ISS is over the ocean"
-            })
+    if list_of_data is not None:
+        for sv in list_of_data:
+            if sv["EPOCH"] == epoch:
+                lat, lon, alt = compute_location_astropy(sv)
+                geoloc = get_geolocation(lat, lon)
+                return jsonify({
+                    "latitude": lat,
+                    "longitude": lon,
+                    "altitude": alt
+                })
     
-    return jsonify({"error": "epoch not found"}), 404
+    return jsonify({"error": "Data not found for the specified epoch"}), 404
 
     
 @app.route('/now', methods=['GET'])
