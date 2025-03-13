@@ -1,11 +1,16 @@
-import time
-from astropy import coordinates
-from astropy import units
-from astropy.time import Time
+import requests  # For making HTTP requests
+import math  # For mathematical functions, e.g., sqrt in speed calculation
+import xmltodict  # For parsing XML data into Python dictionaries
+from datetime import datetime, timezone  # For working with date and time
+import logging  # For logging messages
+import unittest  # For unit testing (though it's not used in the provided code)
+from flask import Flask, request, jsonify  # Flask web framework
+import json  # For working with JSON data
+import time  # For time-related functions, like timestamps
+from astropy import coordinates  # For astropy coordinate transformations
+from astropy import units  # For astropy unit handling
+from astropy.time import Time  # For handling time in astropy
 from geopy.geocoders import Nominatim
-import logging
-from flask import Flask, request, jsonify
-
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
@@ -15,20 +20,25 @@ def compute_location_astropy(sv):
     y = float(sv['Y']['#text'])
     z = float(sv['Z']['#text'])
 
-    # Parse epoch in the format 'YYYY-DDDTHH:MM:SS.sssZ'
+    # Convert DOY format ('2025-084T11:58:30.000Z') to ISO 8601 ('2025-03-24T11:58:30.000Z')
     try:
-        epoch_doy = sv['EPOCH'][:-5]  # Remove the '.000Z'
-        this_epoch = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(epoch_doy, '%Y-%jT%H:%M:%S'))
+        # Remove the last 5 characters ('.000Z') to convert it into the format 'YYYY-DDDTHH:MM:SS'
+        epoch_doy = sv['EPOCH'][:-5]
+        # Parse the DOY format to datetime
+        dt = datetime.strptime(epoch_doy, '%Y-%jT%H:%M:%S')
+        # Format it to ISO 8601 format (without milliseconds)
+        this_epoch = dt.strftime('%Y-%m-%dT%H:%M:%S')
     except ValueError:
         raise ValueError(f"Invalid date format for epoch: '{sv['EPOCH']}'")
 
-    # Astropy conversion
+    # Astropy conversions
     cartrep = coordinates.CartesianRepresentation([x, y, z], unit=units.km)
     gcrs = coordinates.GCRS(cartrep, obstime=this_epoch)
     itrs = gcrs.transform_to(coordinates.ITRS(obstime=this_epoch))
     loc = coordinates.EarthLocation(*itrs.cartesian.xyz)
 
     return loc.lat.value, loc.lon.value, loc.height.value
+
 
 
 @app.route('/epochs/<epoch>/location', methods=['GET'])
