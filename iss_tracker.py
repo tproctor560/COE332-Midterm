@@ -296,7 +296,7 @@ def get_now_data():
         "latitude": lat,
         "longitude": lon,
         "altitude": alt,
-        "geoposition": geoloc
+        "geoposition": geoloc if geoloc else "ISS is over the ocean"
     })
 
 def main():
