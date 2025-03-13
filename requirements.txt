@@ -1,1 +1,14 @@
+flask
+requests
+math
+xmltodict
+datetime
+logging
+unittest
+json
+time
+astropy
+geopy
+pytest
+redis
 
