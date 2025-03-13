@@ -47,12 +47,12 @@ def debug_cache():
     """
     data = rd.get(ISS_data)
     if data:
+        logging.info(f"Data found in Redis: {data}")
         return jsonify({"status": "found", "data": json.loads(data)})
     else:
         logging.info("Data not found in Redis. Fetching new data...")
         fetch_and_store_iss_data()
         return jsonify({"status": "not found"}), 404
-
 def url_xml_pull(url: str):
     """
     Fetches XML data from a URL and stores it in Redis if not already cached.
