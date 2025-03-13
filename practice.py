@@ -15,19 +15,28 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
+from datetime import datetime, timedelta
+
 def compute_location_astropy(sv):
     x = float(sv['X']['#text'])
     y = float(sv['Y']['#text'])
     z = float(sv['Z']['#text'])
 
-    # Convert DOY format ('2025-084T11:58:30.000Z') to ISO 8601 ('2025-03-24T11:58:30.000Z')
+    # Convert DOY format ('2025-084T11:58:30.000Z') to ISO 8601 ('2025-03-25T11:58:30.000Z')
     try:
-        # Remove the last 5 characters ('.000Z') to convert it into the format 'YYYY-DDDTHH:MM:SS'
-        epoch_doy = sv['EPOCH'][:-5]
-        # Parse the DOY format to datetime
-        dt = datetime.strptime(epoch_doy, '%Y-%jT%H:%M:%S')
-        # Format it to ISO 8601 format (without milliseconds)
-        this_epoch = dt.strftime('%Y-%m-%dT%H:%M:%S')
+        # Extract the year and day of year
+        year = int(sv['EPOCH'][:4])  # e.g., '2025'
+        doy = int(sv['EPOCH'][5:8])  # e.g., '084'
+        time_str = sv['EPOCH'][9:-5]  # e.g., 'T11:58:30.000'
+        
+        # Convert DOY to a date
+        date = datetime(year, 1, 1) + timedelta(days=doy - 1)
+        full_datetime_str = date.strftime('%Y-%m-%d') + time_str  # Combine date with time part
+        
+        # Parse the full date-time string
+        dt = datetime.strptime(full_datetime_str, '%Y-%m-%dT%H:%M:%S')  # Now it can be parsed
+        this_epoch = dt.strftime('%Y-%m-%dT%H:%M:%S')  # Convert to ISO 8601 (without milliseconds)
+        
     except ValueError:
         raise ValueError(f"Invalid date format for epoch: '{sv['EPOCH']}'")
 
