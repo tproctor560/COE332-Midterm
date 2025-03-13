@@ -3,7 +3,6 @@ requests
 xmltodict
 datetime
 logging
-json
 time
 astropy
 geopy
