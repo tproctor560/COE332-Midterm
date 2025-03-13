@@ -19,21 +19,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 ISS_DATA_URL = "https://api.wheretheiss.at/v1/satellites/25544"
 
-@app.before_first_request
-def startup():
-    load_iss_data()
-
-def load_iss_data():
-    if redis_client.exists("iss_data"):
-        print("Data found in Redis, skipping download.")
-        return
-    
-    response = requests.get(ISS_DATA_URL)
-    if response.status_code == 200:
-        data = response.json()
-        redis_client.set("iss_data", json.dumps(data))
-        print("ISS data loaded into Redis.")
-
 def url_xml_pull(url: str):
 
     """
