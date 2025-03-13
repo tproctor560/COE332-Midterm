@@ -181,6 +181,19 @@ def get_instantaneous_speed(epoch):
             return jsonify({"epoch": epoch, "speed": speed}) 
     return jsonify({"error": "epoch not found"}), 404
 
+@app.route('/epochs/<epoch>/location', methods=['GET']
+def location_finder(epoch):
+    """
+    This function XXX
+
+    Args:
+
+    Returns: 
+
+    """
+    url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+    data = url_xml_pull(url)
+    list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
 @app.route('/now', methods=['GET'])
 def get_now_data():
     """
