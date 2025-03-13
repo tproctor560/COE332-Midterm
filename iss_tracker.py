@@ -221,7 +221,7 @@ def get_instantaneous_speed(epoch):
 
     Returns: the integer for instant speed, or a string saying the epoch cannot be found
     """
-    cached_data = redis_client.get(ISS_data)
+    cached_data = rd.get(ISS_data)
 
     if cached_data:
         data = json.loads(cached_data)  # Convert stored JSON string back to Python object
