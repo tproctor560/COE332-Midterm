@@ -200,7 +200,7 @@ def state_vector(epoch):
         A dict that represents that datapoint or a string stating the specificed epoch was not in the dataset
     """
 
-    cached_data = redis_client.get(ISS_data)
+    cached_data = rd.get(ISS_data)
 
     if cached_data:
         data = json.loads(cached_data)  # Convert stored JSON string back to Python object
