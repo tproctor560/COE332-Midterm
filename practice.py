@@ -88,7 +88,9 @@ def get_now_data():
 
     for sv in list_of_data:
         try:
-            epoch_time = datetime.strptime(sv["EPOCH"], "%Y-%jT%H:%M:%S.%fZ").timestamp()
+            # For the format '2025-084T11:34:30.000Z', where 2025 is the year, 084 is the day of the year
+            epoch_time = datetime.strptime(sv["EPOCH"], "%Y-%jT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp()
+
             time_diff = abs(now - epoch_time)
 
             if time_diff < closest_time_diff:
