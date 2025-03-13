@@ -17,16 +17,20 @@ app = Flask(__name__)
 redis_client = redis.Redis(host="redis-db", port=6379, decode_responses=True)
 logging.basicConfig(level=logging.DEBUG)
 
-ISS_DATA_URL = "https://api.wheretheiss.at/v1/satellites/25544"
+
+ISS_data = "iss_state_vector_data"
+ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
 
 @app.route('/debug-cache', methods=['GET'])
 def debug_cache():
-    data = redis_client.get("iss_state_vector_data")
+    """
+    Debug endpoint to check if the ISS data is in Redis.
+    """
+    data = redis_client.get(ISS_data)
     if data:
         return jsonify({"status": "found", "data": json.loads(data)})
     else:
         return jsonify({"status": "not found"}), 404
-
 def url_xml_pull(url: str):
 
     """
