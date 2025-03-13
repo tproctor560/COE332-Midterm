@@ -45,7 +45,7 @@ def debug_cache():
     """
     Debug endpoint to check if ISS data is in Redis. If missing, fetches and stores it.
     """
-    data = rd.get(ISS_DATA_KEY)
+    data = rd.get(ISS_data)
     if data:
         return jsonify({"status": "found", "data": json.loads(data)})
     else:
@@ -57,7 +57,7 @@ def url_xml_pull(url: str):
     """
     Fetches XML data from a URL and stores it in Redis if not already cached.
     """
-    data = rd.get(ISS_DATA_KEY)
+    data = rd.get(ISS_data)
     if data:
         logging.info("Data retrieved from Redis cache.")
         return json.loads(data)
@@ -67,7 +67,7 @@ def url_xml_pull(url: str):
         if response.status_code == 200:
             data = xmltodict.parse(response.text)
             json_data = json.dumps(data)
-            rd.set(ISS_DATA_KEY, json_data)  # Cache the data in Redis
+            rd.set(ISS_data, json_data)  # Cache the data in Redis
             logging.info(f"Data successfully retrieved and stored from {url}")
             return data
         else:
