@@ -101,23 +101,25 @@ def find_data_point(data, *keys):
     
 
 def compute_location_astropy(sv):
-    """ Computes latitude, longitude, and altitude using Astropy. """
     x = float(sv['X']['#text'])
     y = float(sv['Y']['#text'])
     z = float(sv['Z']['#text'])
 
-    # Convert the given EPOCH to a proper datetime object
-    epoch_time = Time(sv['EPOCH'], format='isot', scale='utc')
+    # Convert DOY format ('2025-084T11:58:30.000Z') to ISO 8601 ('2025-03-24T11:58:30.000Z')
+    try:
+        epoch_doy = sv['EPOCH'][:-5]  # Remove '.000Z'
+        dt = datetime.strptime(epoch_doy, '%Y-%jT%H:%M:%S')  # Parse DOY format
+        this_epoch = dt.strftime('%Y-%m-%dT%H:%M:%S')  # Convert to ISO 8601 (without milliseconds)
+    except ValueError:
+        raise ValueError(f"Invalid date format for epoch: '{sv['EPOCH']}'")
 
-    # Convert Cartesian coordinates to Earth-based coordinates
+    # Astropy conversions
     cartrep = coordinates.CartesianRepresentation([x, y, z], unit=units.km)
-    gcrs = coordinates.GCRS(cartrep, obstime=epoch_time)
-    itrs = gcrs.transform_to(coordinates.ITRS(obstime=epoch_time))
+    gcrs = coordinates.GCRS(cartrep, obstime=this_epoch)
+    itrs = gcrs.transform_to(coordinates.ITRS(obstime=this_epoch))
     loc = coordinates.EarthLocation(*itrs.cartesian.xyz)
 
-    # Extract latitude, longitude, and altitude
-    latitude, longitude, altitude = loc.lat.value, loc.lon.value, loc.height.value
-    return latitude, longitude, altitude
+    return loc.lat.value, loc.lon.value, loc.height.value
 
 def instantaneous_speed(x: float, y: float, z: float) -> float:
     """
