@@ -6,6 +6,7 @@ import logging
 import unittest
 from flask import Flask, request, jsonify
 import json
+import redis
 import time
 from astropy import coordinates
 from astropy import units
@@ -13,14 +14,36 @@ from astropy.time import Time
 from geopy.geocoders import Nominatim
 
 app = Flask(__name__)
-
+redis_client = redis.Redis(host="redis-db", port=6379, decode_responses=True)
 logging.basicConfig(level=logging.DEBUG)
+
+ISS_DATA_URL = "https://api.wheretheiss.at/v1/satellites/25544"
+
+@app.before_first_request
+def startup():
+    load_iss_data()
+
+def load_iss_data():
+    if redis_client.exists("iss_data"):
+        print("Data found in Redis, skipping download.")
+        return
+    
+    response = requests.get(ISS_DATA_URL)
+    if response.status_code == 200:
+        data = response.json()
+        redis_client.set("iss_data", json.dumps(data))
+        print("ISS data loaded into Redis.")
 
 def url_xml_pull(url: str):
 
     """
     Pulls the url in the main function and determines if it was successful or not
     """
+    data = redis_client.get(f"iss_data_{url}")
+    if data:
+        logging.info("Data retrieved from Redis cache.")
+        return json.loads(data)
+        
     try:
         response = requests.get(url)
 
@@ -55,6 +78,7 @@ def read_data_from_xml(filepath: str):
         data = xmltodict.parse(f.read())
         
     return data
+    
 def find_data_point(data, *keys):
     """
     The following argument will take in some data in the form of a json string, as well as strings that represent the location of the time stamps and epoch times
@@ -199,8 +223,12 @@ def get_instantaneous_speed(epoch):
 
     Returns: the integer for instant speed, or a string saying the epoch cannot be found
     """
-    url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
-    data = url_xml_pull(url)
+    data = redis_client.get("iss_state_vector_data")
+    if not data:
+        url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+        data = url_xml_pull(url)
+        redis_client.set("iss_state_vector_data", json.dumps(data), ex=3600)
+
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
     for i in list_of_data:
         if i["EPOCH"] == epoch:
@@ -217,8 +245,10 @@ def location(epoch):
     """
     This function returns the latitude, longitude, altitude, and geoposition for the given epoch.
     """
-    url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
-    data = url_xml_pull(url)
+    data = redis_client.get("iss_state_vector_data")
+    if not data:
+        url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+        data = url_xml_pull(url)
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
     
     for sv in list_of_data:
@@ -241,8 +271,11 @@ def get_now_data():
     This function returns the location (latitude, longitude, altitude, and geoposition)
     for the closest epoch to the current time.
     """
-    url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
-    data = url_xml_pull(url)
+    data = redis_client.get("iss_state_vector_data")
+    if not data:
+        url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+        data = url_xml_pull(url)
+        redis_client.set("iss_state_vector_data", json.dumps(data), ex=3600)
     
     if not data:
         return jsonify({"error": "Failed to retrieve data"}), 500
