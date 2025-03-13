@@ -33,7 +33,7 @@ def fetch_and_store_iss_data():
         if response.status_code == 200:
             data = xmltodict.parse(response.text)
             json_data = json.dumps(data)  # Convert to JSON string for Redis storage
-            rd.set(ISS_DATA_KEY, json_data)
+            rd.set(ISS_data, json_data)
             logging.info("ISS data successfully fetched and stored in Redis.")
         else:
             logging.error(f"Failed to fetch ISS data. Status code: {response.status_code}")
