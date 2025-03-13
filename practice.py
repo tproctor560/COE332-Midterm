@@ -73,7 +73,7 @@ def compute_location_astropy(sv):
 
 def get_geolocation(lat, lon):
     geocoder = Nominatim(user_agent="iss_tracker")
-    geoloc = geocoder.reverse((lat, lon), zoom=15, language='en')
+    geoloc = geocoder.reverse((lat, lon), zoom=2, language='en')
     
     # Return the name of the location or None if not found
     if geoloc:
