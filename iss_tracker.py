@@ -121,6 +121,7 @@ def compute_location_astropy(sv):
 
     return loc.lat.value, loc.lon.value, loc.height.value
 
+
 def instantaneous_speed(x: float, y: float, z: float) -> float:
     """
     This function is a helper function to find the instantaneous speed of an object given it's velocity vectors
@@ -250,16 +251,14 @@ def get_now_data():
     if not list_of_data:
         return jsonify({"error": "No state vector data found"}), 404 
 
-    now = datetime.now(timezone.utc).timestamp()
+    now = datetime.now(timezone.utc).timestamp()  # Get the current time in UTC
     closest_epoch = None
     closest_time_diff = float("inf")
 
     for sv in list_of_data:
         try:
             fixed_epoch = sv["EPOCH"].replace("T", " ").replace("Z", "")  # Fix format
-            epoch_time = Time(fixed_epoch, format="iso", scale="utc").unix
-
-
+            epoch_time = Time(fixed_epoch, format="iso", scale="utc").unix  # Convert to UNIX timestamp using Astropy
 
             time_diff = abs(now - epoch_time)
 
@@ -292,6 +291,7 @@ def get_now_data():
         "altitude_km": altitude,
         "geoposition": geoposition
     })
+
 
 def main():
 
