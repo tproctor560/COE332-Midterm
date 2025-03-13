@@ -236,13 +236,7 @@ def location_finder(epoch):
 @app.route('/now', methods=['GET'])
 def get_now_data():
     """
-    This function returns the epoch that is closest to the current time at the time of program run
-
-    Args: none
-        
-        
-    Returns: a dictionary with the statevectors and the instantaneous speed
-        
+    Returns the real-time latitude, longitude, altitude, and geoposition of the ISS.
     """
     url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
     data = url_xml_pull(url)
@@ -250,40 +244,48 @@ def get_now_data():
         return jsonify({"error": "Failed to retrieve data"}), 500
 
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
-    
+
     if not list_of_data:
         return jsonify({"error": "No state vector data found"}), 404 
 
-    now = datetime.now(timezone.utc).timestamp()  
+    now = datetime.now(timezone.utc).timestamp()
     closest_epoch = None
-    closest_time_diff = float("inf")  
+    closest_time_diff = float("inf")
 
-    
     for sv in list_of_data:
         try:
-            epoch_time = datetime.strptime(sv["EPOCH"], "%Y-%jT%H:%M:%S.%fZ").timestamp()
+            epoch_time = Time(sv["EPOCH"], format="isot", scale="utc").unix
             time_diff = abs(now - epoch_time)
 
             if time_diff < closest_time_diff:
                 closest_time_diff = time_diff
                 closest_epoch = sv
         except ValueError: 
-            logging.error(f"Invalid date format for epoch: {sv['EPOCH']}")
+            logging.error(f"Invalid date format for epoch: {repr(sv['EPOCH'])}")
             continue      
-        if not closest_epoch:
-            return jsonify({"error": "No valid epochs found"}), 500
 
-  
-    speed = instantaneous_speed(
-        float(closest_epoch["X_DOT"]["#text"]),
-        float(closest_epoch["Y_DOT"]["#text"]),
-        float(closest_epoch["Z_DOT"]["#text"]),
-    )
+    if not closest_epoch:
+        return jsonify({"error": "No valid epochs found"}), 500
+
+    # Compute latitude, longitude, altitude using Astropy
+    latitude, longitude, altitude = compute_location_astropy(closest_epoch)
+
+    # Use GeoPy to get location name from lat/lon (handle possible errors)
+    geolocator = Nominatim(user_agent="iss_tracker")
+    try:
+        location = geolocator.reverse((latitude, longitude), language="en", zoom=5)
+        geoposition = location.address if location else "Unknown location"
+    except Exception as e:
+        logging.error(f"GeoPy reverse lookup failed: {e}")
+        geoposition = "Unknown location"
 
     return jsonify({
-        "state_vector": closest_epoch,
-        "speed": speed
-    }) 
+        "epoch": closest_epoch["EPOCH"],
+        "latitude": latitude,
+        "longitude": longitude,
+        "altitude_km": altitude,
+        "geoposition": geoposition
+    })
 
 def main():
 
