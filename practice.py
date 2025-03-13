@@ -35,6 +35,58 @@ def url_xml_pull(url: str):
         return None
         
 
+def parse_doy_to_datetime(doy_str: str) -> str:
+    """
+    Converts the DOY format (YYYY-DDDTHH:MM:SS.sssZ) into a valid datetime string for Astropy.
+
+    Args:
+        doy_str: A string in the format 'YYYY-DDDTHH:MM:SS.sssZ'
+
+    Returns:
+        A datetime string in ISO 8601 format.
+    """
+    try:
+        # Extract the year and day of year
+        year = int(doy_str[:4])
+        day_of_year = int(doy_str[5:8])
+
+        # Create a date object for the first day of the year
+        start_date = datetime(year, 1, 1)
+
+        # Add the day of the year offset to get the correct date
+        correct_date = start_date + timedelta(days=day_of_year - 1)
+
+        # Rebuild the full datetime string in ISO 8601 format
+        time_str = doy_str[9:]  # Extract the time part (HH:MM:SS.sssZ)
+        final_datetime = correct_date.strftime('%Y-%m-%d') + 'T' + time_str
+
+        return final_datetime
+    except ValueError:
+        logging.error(f"Invalid DOY format for epoch: '{doy_str}'")
+        return None
+
+def compute_location_astropy(sv):
+    x = float(sv['X']['#text'])
+    y = float(sv['Y']['#text'])
+    z = float(sv['Z']['#text'])
+
+    # Get DOY format (e.g., '2025-069T12:32:00.000Z')
+    epoch_doy = sv['EPOCH'][:-5]  # Remove '.000Z'
+    
+    # Parse the DOY and convert to ISO 8601 format
+    try:
+        this_epoch = parse_doy_to_datetime(epoch_doy)
+    except Exception as e:
+        raise ValueError(f"Error converting epoch: {e}")
+
+    # Astropy conversions
+    cartrep = coordinates.CartesianRepresentation([x, y, z], unit=units.km)
+    gcrs = coordinates.GCRS(cartrep, obstime=this_epoch)
+    itrs = gcrs.transform_to(coordinates.ITRS(obstime=this_epoch))
+    loc = coordinates.EarthLocation(*itrs.cartesian.xyz)
+
+    return loc.lat.value, loc.lon.value, loc.height.value
+
 def read_data_from_xml(filepath: str):
     """
     This function is a fail-safe in case the user cannot import the data through requests
