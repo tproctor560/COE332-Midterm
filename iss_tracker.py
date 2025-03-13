@@ -164,7 +164,7 @@ def entire_data():
     Returns:  
         A list of the entire data
     """
-    cached_data = redis_client.get(ISS_data)
+    cached_data = rd.get(ISS_data)
 
     if cached_data:
         data = json.loads(cached_data)  # Convert stored JSON string back to Python object
@@ -242,7 +242,7 @@ def location(epoch):
     """
     This function returns the latitude, longitude, altitude, and geoposition for the given epoch.
     """
-    cached_data = redis_client.get(ISS_data)
+    cached_data = rd.get(ISS_data)
 
     if cached_data:
         data = json.loads(cached_data)  # Convert stored JSON string back to Python object
@@ -271,7 +271,7 @@ def get_now_data():
     This function returns the location (latitude, longitude, altitude, and geoposition)
     for the closest epoch to the current time.
     """
-    cached_data = redis_client.get(ISS_data)  # Fetch cached data from Redis
+    cached_data = rd.get(ISS_data)  # Fetch cached data from Redis
 
     if cached_data:
         data = json.loads(cached_data)  # Convert stored JSON string back to Python object
