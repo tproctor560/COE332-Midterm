@@ -216,8 +216,8 @@ def get_now_data():
                 closest_time_diff = time_diff
                 closest_epoch = sv
         except ValueError: 
-        logging.error(f"Invalid date format for epoch: {sv['EPOCH']}")
-        continue      
+            logging.error(f"Invalid date format for epoch: {sv['EPOCH']}")
+            continue      
         if not closest_epoch:
             return jsonify({"error": "No valid epochs found"}), 500
 
