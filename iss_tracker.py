@@ -21,7 +21,7 @@ def get_redis_client():
 
 rd = get_redis_client()
 
-ISS_DATA_KEY = "iss_state_vector_data"
+ISS_data = "iss_state_vector_data"
 ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
 
 def fetch_and_store_iss_data():
