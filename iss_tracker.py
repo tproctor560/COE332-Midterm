@@ -254,7 +254,7 @@ def get_now_data():
 
     for sv in list_of_data:
         try:
-            epoch_time = Time(sv["EPOCH"], format="yday", scale="utc").unix
+            epoch_time = Time(sv["EPOCH"], format="yday", scale="utc", precision=9).unix
 
             time_diff = abs(now - epoch_time)
 
