@@ -7,6 +7,10 @@ import unittest
 from flask import Flask, request, jsonify
 import json
 import time
+from astropy import coordinates
+from astropy import units
+from astropy.time import Time
+from geopy.geocoders import Nominatim
 
 app = Flask(__name__)
 
