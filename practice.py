@@ -65,7 +65,12 @@ def location_finder(epoch):
 @app.route('/now', methods=['GET'])
 def get_now_data():
     """
-    Returns the real-time latitude, longitude, altitude, and geoposition of the ISS.
+    This function returns the epoch that is closest to the current time and provides the 
+    real-time location of the ISS using the compute_location_astropy function.
+
+    Args: none
+        
+    Returns: a dictionary with the state vector and location information (latitude, longitude, height)
     """
     url = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
     data = url_xml_pull(url)
@@ -73,52 +78,40 @@ def get_now_data():
         return jsonify({"error": "Failed to retrieve data"}), 500
 
     list_of_data = find_data_point(data, "ndm", "oem", "body", "segment", "data", "stateVector")
-
+    
     if not list_of_data:
         return jsonify({"error": "No state vector data found"}), 404 
 
-    now = time.time()  # Get the current time in UTC
+    now = datetime.now(timezone.utc).timestamp()  
     closest_epoch = None
-    closest_time_diff = float("inf")
+    closest_time_diff = float("inf")  
 
     for sv in list_of_data:
         try:
-            fixed_epoch = sv["EPOCH"].replace("T", " ").replace("Z", "")  # Fix format
-            epoch_time = Time(fixed_epoch, format="iso", scale="utc").unix  # Convert to UNIX timestamp using Astropy
-
+            epoch_time = datetime.strptime(sv["EPOCH"], "%Y-%jT%H:%M:%S.%fZ").timestamp()
             time_diff = abs(now - epoch_time)
 
             if time_diff < closest_time_diff:
                 closest_time_diff = time_diff
                 closest_epoch = sv
         except ValueError: 
-            logging.error(f"Invalid date format for epoch: {repr(sv['EPOCH'])}")
+            logging.error(f"Invalid date format for epoch: {sv['EPOCH']}")
             continue      
-
+    
     if not closest_epoch:
         return jsonify({"error": "No valid epochs found"}), 500
 
-    # Compute latitude, longitude, altitude using Astropy
-    latitude, longitude, altitude = compute_location_astropy(closest_epoch)
-
-    # Use GeoPy to get location name from lat/lon (handle possible errors)
-    geolocator = Nominatim(user_agent="iss_tracker")
-    try:
-        location = geolocator.reverse((latitude, longitude), language="en", zoom=5)
-        geoposition = location.address if location else "Unknown location"
-    except Exception as e:
-        logging.error(f"GeoPy reverse lookup failed: {e}")
-        geoposition = "Unknown location"
+    # Use the compute_location_astropy function to get the location
+    location = compute_location_astropy(closest_epoch)
 
     return jsonify({
-        "epoch": closest_epoch["EPOCH"],
-        "latitude": latitude,
-        "longitude": longitude,
-        "altitude_km": altitude,
-        "geoposition": geoposition
+        "state_vector": closest_epoch,
+        "location": {
+            "latitude": location[0],
+            "longitude": location[1],
+            "height": location[2]
+        }
     })
-
-
 def url_xml_pull(url: str):
     """
     Pulls the url in the main function and determines if it was successful or not
