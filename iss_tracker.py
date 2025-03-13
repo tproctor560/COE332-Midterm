@@ -26,72 +26,28 @@ ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_
 
 def fetch_and_store_iss_data():
     """
-    Fetches ISS data from the XML URL, parses it, and stores it in Redis.
+    Fetches ISS data **only if not already cached** in Redis.
     """
+    cached_data = rd.get(ISS_data)
+    if cached_data:
+        logging.info("Data retrieved from Redis cache.")  
+        return json.loads(cached_data)
+
     try:
         response = requests.get(ISS_XML_URL)
         if response.status_code == 200:
             data = xmltodict.parse(response.text)
-            json_data = json.dumps(data)  # Convert to JSON string for Redis storage
+            json_data = json.dumps(data)
             rd.set(ISS_data, json_data)
             logging.info("ISS data successfully fetched and stored in Redis.")
+            return data  # ✅ Return fresh data
         else:
             logging.error(f"Failed to fetch ISS data. Status code: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request failed: {e}")
-
-@app.route('/debug-cache', methods=['GET'])
-def debug_cache():
-    """
-    Debug endpoint to check if ISS data is in Redis. If missing, fetches and stores it.
-    """
-    data = rd.get(ISS_data)
-    if data:
-        logging.info(f"Data found in Redis: {data}")
-        return jsonify({"status": "found", "data": json.loads(data)})
-    else:
-        logging.info("Data not found in Redis. Fetching new data...")
-        fetch_and_store_iss_data()
-        return jsonify({"status": "not found"}), 404
-def url_xml_pull(url: str):
-    """
-    Fetches XML data from a URL and stores it in Redis if not already cached.
-    """
-    data = rd.get(ISS_data)
-    if data:
-        logging.info("Data retrieved from Redis cache.")
-        return json.loads(data)
-
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = xmltodict.parse(response.text)
-            json_data = json.dumps(data)
-            rd.set(ISS_data, json_data)  # Cache the data in Redis
-            logging.info(f"Data successfully retrieved and stored from {url}")
-            return data
-        else:
-            logging.error(f"Failed to retrieve data from {url}. Status code: {response.status_code}")
             return None
     except requests.exceptions.RequestException as e:
-        logging.error(f"RequestException: Failed to fetch data from {url} due to: {e}")
+        logging.error(f"Request failed: {e}")
         return None
-    except Exception as e:
-        logging.error(f"Unexpected error in url_xml_pull: {e}")
-        return None
-
-def read_data_from_xml(filepath: str):
-    """
-    Reads and parses XML data from a local file (fallback method).
-    """
-    try:
-        with open(filepath, "r") as f:
-            data = xmltodict.parse(f.read())
-        return data
-    except Exception as e:
-        logging.error(f"Error reading XML file: {e}")
-        return None
-
+        
 def find_data_point(data, *keys):
     """
     Extracts nested values from a JSON-like dictionary using a sequence of keys.
