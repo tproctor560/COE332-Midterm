@@ -1,6 +1,5 @@
 flask
 requests
-math
 xmltodict
 datetime
 logging
