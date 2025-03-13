@@ -14,39 +14,61 @@ from astropy.time import Time
 from geopy.geocoders import Nominatim
 
 app = Flask(__name__)
-redis_client = redis.Redis(host="redis-db", port=6379, decode_responses=True)
 logging.basicConfig(level=logging.DEBUG)
 
+def get_redis_client():
+    return redis.Redis(host="redis-db", port=6379, decode_responses=True)
 
-ISS_data = "iss_state_vector_data"
+rd = get_redis_client()
+
+ISS_DATA_KEY = "iss_state_vector_data"
 ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+
+def fetch_and_store_iss_data():
+    """
+    Fetches ISS data from the XML URL, parses it, and stores it in Redis.
+    """
+    try:
+        response = requests.get(ISS_XML_URL)
+        if response.status_code == 200:
+            data = xmltodict.parse(response.text)
+            json_data = json.dumps(data)  # Convert to JSON string for Redis storage
+            rd.set(ISS_DATA_KEY, json_data)
+            logging.info("ISS data successfully fetched and stored in Redis.")
+        else:
+            logging.error(f"Failed to fetch ISS data. Status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Request failed: {e}")
 
 @app.route('/debug-cache', methods=['GET'])
 def debug_cache():
     """
-    Debug endpoint to check if the ISS data is in Redis.
+    Debug endpoint to check if ISS data is in Redis. If missing, fetches and stores it.
     """
-    data = redis_client.get(ISS_data)
+    data = rd.get(ISS_DATA_KEY)
     if data:
         return jsonify({"status": "found", "data": json.loads(data)})
     else:
+        logging.info("Data not found in Redis. Fetching new data...")
+        fetch_and_store_iss_data()
         return jsonify({"status": "not found"}), 404
-def url_xml_pull(url: str):
 
+def url_xml_pull(url: str):
     """
-    Pulls the url in the main function and determines if it was successful or not
+    Fetches XML data from a URL and stores it in Redis if not already cached.
     """
-    data = redis_client.get(f"iss_data_{url}")
+    data = rd.get(ISS_DATA_KEY)
     if data:
         logging.info("Data retrieved from Redis cache.")
         return json.loads(data)
-        
+
     try:
         response = requests.get(url)
-
         if response.status_code == 200:
             data = xmltodict.parse(response.text)
-            logging.info(f"Data successfully retrieved from {url}")
+            json_data = json.dumps(data)
+            rd.set(ISS_DATA_KEY, json_data)  # Cache the data in Redis
+            logging.info(f"Data successfully retrieved and stored from {url}")
             return data
         else:
             logging.error(f"Failed to retrieve data from {url}. Status code: {response.status_code}")
@@ -57,70 +79,40 @@ def url_xml_pull(url: str):
     except Exception as e:
         logging.error(f"Unexpected error in url_xml_pull: {e}")
         return None
-        
 
 def read_data_from_xml(filepath: str):
     """
-    This function is a fail-safe in case the user cannot import the data through requests
-    
-    Args:
-        filepath (str): the filepath to the xml data
-        
-    Returns:
-        the data as a JSON
-    
-    (No tests will be written for this function as it's a fail-safe)
+    Reads and parses XML data from a local file (fallback method).
     """
-    with open(filepath, "r") as f:
-        data = xmltodict.parse(f.read())
-        
-    return data
-    
+    try:
+        with open(filepath, "r") as f:
+            data = xmltodict.parse(f.read())
+        return data
+    except Exception as e:
+        logging.error(f"Error reading XML file: {e}")
+        return None
+
 def find_data_point(data, *keys):
     """
-    The following argument will take in some data in the form of a json string, as well as strings that represent the location of the time stamps and epoch times
-    
-    Args:
-        data: a json object
-        *args: a list of strings that points to the location of the data within a json datatype
-    
-    Returns:
-        Either the data, or a null return if the data is not found
+    Extracts nested values from a JSON-like dictionary using a sequence of keys.
     """
-    
     current = data
-    
     try:
         for key in keys:
-        
             if isinstance(current, dict):
                 if key in current:
                     current = current[key]
                 else:
-                    print(f"Key '{key}' not found in data structure")
-                    return None  # Or handle the missing key differently
+                    logging.error(f"Key '{key}' not found in data structure")
+                    return None
             else:
-                print(f"Expected dictionary, got {type(current).__name__}")
+                logging.error(f"Expected dictionary, got {type(current).__name__}")
                 return None
         return current
+    except (KeyError, IndexError, ValueError, AttributeError) as e:
+        logging.error(f"Error accessing data: {e}")
+        return None
         
-    except KeyError:
-        logging.error(f"Key Error at find_data_point")
-        raise KeyError()
- 
-    except IndexError:
-        logging.error(f"Index Error at find_data_point")
-        raise IndexError()
-    
-    except ValueError:
-        logging.error(f"Value Error at find_data_point")
-        raise ValueError()
-    
-    except AttributeError:
-        logging.error(f"Attribute Error at find_data_point")
-        raise AttributeError()
-    
-
 def compute_location_astropy(sv):
     # Extract the state vector coordinates
     x = float(sv['X']['#text'])
