@@ -83,7 +83,8 @@ This will be ran using pytest test_iss_tracker.pyThese will have 4 pass and 2 fa
 
 
 
-## Diagram.png: Include a software diagram that illustrates what you deem to be the most important parts of your project. The diagram should be visible from your README.
+## Diagram
+Include a software diagram that illustrates what you deem to be the most important parts of your project. The diagram should be visible from your README.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ## Chatgpt acknowledgment
