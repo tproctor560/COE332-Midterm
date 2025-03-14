@@ -1,5 +1,5 @@
 import unittest
-from app import app, rd
+from iss_tracker import app, rd
 import json
 from unittest.mock import patch
 
