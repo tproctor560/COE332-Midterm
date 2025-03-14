@@ -16,7 +16,8 @@ These functions are used to build our redis database to then run flask API route
 Additionally, the goal is for the functions: ```def entire_data()```, ```def state_vector()```, ```def get_instantaneous_speed()```, ```def location()``` and ```def get_now_data()```; to set up Flask API routes with ```@app.route``` to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
 
 ## Routes
-The following route endpoints correlate to the following functions:
+The following route endpoints correlate to the following functions:   
+
 ```@app.route('/epochs', methods = ['GET'])``` is used to run ```def entire_data()``` (```/epochs?limit=int&offset=int``` can be ran for this function as well, and will provide a dict of epochs to the users specifications)
 
 ```@app.route('/epochs/<epoch>', methods = ['GET'])``` is used to run ```def state_vector()```
