@@ -1,6 +1,12 @@
 # Building a Flask API to track the ISS using Redis and Docker
 
-This Midterm project contains two python scripts ```iss_tracker.py``` & ```test_iss_tracker.py```, the ```Dockerfile``` needed to build the image to run these containerized programs, a ```docker-compose.yml``` file to automate the deployment of the Flask app and the Redis container together, and a ```requirements.txt``` that lists non-standard Python libraries that must be installed for this project file. Additionally, this folder contains a diagram.png of how I interpret the software system to be running.
+This Midterm project contains:   
+
+-two python scripts ```iss_tracker.py``` & ```test_iss_tracker.py```   
+-the ```Dockerfile``` needed to build the image to run these containerized programs   
+-a ```docker-compose.yml``` file to automate the deployment of the Flask app and the Redis container together   
+-a ```requirements.txt``` that lists non-standard Python libraries that must be installed for this project file   
+-Additionally, this folder contains a diagram.png of how I interpret the software system to be running.
 
 The objective of this assignment is to use the iss_tracker.py python script to run the ensuing functions: ```def fetch_and_store_iss_data```, ```def find_data_point```, ```def compute_location_astropy```, ```def get_geolocation```,  ```def instantaneous_speed```, ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location```, and ```def get_now_data```. These functions are used to build our redis database to then run flask API routes to extract various data analysis regarding the ISS epoch's total data, component data, instantaneous speed data, location data, and time data to inform the user on the public data regarding the ISS.
 
