@@ -38,7 +38,7 @@ class TestISSTrackerApp(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(len(data) > 0)
     
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}}}))  # Mock Redis with fake data
+    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_fetch_and_store_iss_data_with_cache(self, mock_get):
         """Test fetching ISS data when data is in Redis cache."""
         response = self.client.get('/epochs')
@@ -46,7 +46,7 @@ class TestISSTrackerApp(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(len(data) > 0)  # Assert that some data is returned
     
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}}}))  # Mock Redis with fake data
+    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_get_epoch(self, mock_get):
         """Test retrieving state vector data for a specific epoch."""
         response = self.client.get('/epochs/2025-069T12:32:00.000Z')
@@ -54,7 +54,7 @@ class TestISSTrackerApp(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['EPOCH'], '2025-069T12:32:00.000Z')
     
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}}}))  # Mock Redis with fake data
+    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_get_instantaneous_speed(self, mock_get):
         """Test retrieving the instantaneous speed for a given epoch."""
         response = self.client.get('/epochs/2025-069T12:32:00.000Z/speed')
@@ -63,7 +63,7 @@ class TestISSTrackerApp(unittest.TestCase):
         self.assertIn('speed', data)
         self.assertIsInstance(data['speed'], float)
     
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}}}))  # Mock Redis with fake data
+    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_get_location(self, mock_get):
         """Test retrieving the location (latitude, longitude, altitude) for a given epoch."""
         response = self.client.get('/epochs/2025-069T12:32:00.000Z/location')
@@ -73,7 +73,7 @@ class TestISSTrackerApp(unittest.TestCase):
         self.assertIn('longitude', data)
         self.assertIn('altitude', data)
     
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}}}))  # Mock Redis with fake data
+    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_get_now_data(self, mock_get):
         """Test retrieving the location for the closest epoch to the current time."""
         response = self.client.get('/now')
