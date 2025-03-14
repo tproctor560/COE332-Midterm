@@ -88,6 +88,6 @@ Include a software diagram that illustrates what you deem to be the most importa
 ## Chatgpt acknowledgment
 Chatgpt was used to assist in this code primarily in the python function scripts of analyzing the timestamp dates;   
 
-it was also used to help with some of th redis formatting (indentations and structure);   
+it was also used to help with some of the redis formatting (indentations and structure);   
 
 Finally, chatgpt was used to help build the test_iss_tracking.py script to help with the flask routes, and ensuring connection to import the iss_tracker file, and remain connected to redis.
