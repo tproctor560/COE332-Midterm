@@ -84,11 +84,9 @@ def find_data_point(data: dict, *keys: str):
         
 def compute_location_astropy(sv: dict):
         """
- Computes the location of the ISS using the latitude, longitude, and height of the state vector
-
-    Args:   sv (dict): A dictionary containing the ISS state vector data, including position coordinates ('X', 'Y', 'Z') and the timestamp ('EPOCH')
-
-    Returns: the location latitude, longititude, and height (altitude) values.
+        Computes the location of the ISS using the latitude, longitude, and height of the state vector
+        Args:   sv (dict): A dictionary containing the ISS state vector data, including position coordinates ('X', 'Y', 'Z') and the timestamp ('EPOCH')
+        Returns: the location latitude, longititude, and height (altitude) values.
     """
     # Extract the state vector coordinates
     x = float(sv['X']['#text'])
