@@ -1,6 +1,6 @@
 # Building a Flask API to track the ISS using Redis and Docker
 
-##This Midterm project contains:   
+## This Midterm project contains:   
 
 -two python scripts ```iss_tracker.py``` & ```test_iss_tracker.py```   
 -the ```Dockerfile``` needed to build the image to run these containerized programs   
