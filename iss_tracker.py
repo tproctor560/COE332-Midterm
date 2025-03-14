@@ -108,22 +108,23 @@ def compute_location_astropy(sv: dict):
 
     
 def get_geolocation(lat: float, lon: float):
-            """
- Computes the geolocation of the ISS using the latitude and longitude
+    """
+    Computes the geolocation of the ISS using the latitude and longitude
 
     Args:  
-            lat (float): the horizontal latitude of the ISS at a given moment in decimal degrees
-            lon (float): the vertical longitude of the ISS at a given moment in decimal degrees
+        lat (float): the horizontal latitude of the ISS at a given moment in decimal degrees
+        lon (float): the vertical longitude of the ISS at a given moment in decimal degrees
 
-    Returns: str-> the geopositional address of the ISS at thye given time, or "The Iss is Over the Ocean" if the ISS is over the Ocean
+    Returns: str-> the geopositional address of the ISS at the given time, or "The ISS is Over the Ocean" if the ISS is over the Ocean
     """
     geocoder = Nominatim(user_agent="iss_tracker")
     geoloc = geocoder.reverse((lat, lon), zoom=8, language='en')
-    
+
     # Return the name of the location or None if not found
     if geoloc:
         return geoloc.address
     return None
+
 
 
 def instantaneous_speed(x: float, y: float, z: float) -> float:
