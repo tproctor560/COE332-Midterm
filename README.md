@@ -13,7 +13,7 @@ The objective of this assignment is to use the iss_tracker.py python script to r
 
 These functions are used to build our redis database to then run flask API routes to extract various data analysis regarding the ISS epoch's total data, component data, instantaneous speed data, location data, and time data to inform the user on the public data regarding the ISS.
 
-Additionally, the goal is for the functions: ```def entire_data```, def state_vector```, ```def get_instantaneous_speed```, ```def location``` and ```def get_now_data```; to set up Flask API routes with @app.route to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
+Additionally, the goal is for the functions: ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location``` and ```def get_now_data```; to set up Flask API routes with @app.route to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
 
 Routes
 The following route endpoints correlate to the following functions:
