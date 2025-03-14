@@ -251,7 +251,8 @@ def location(epoch: str):
                 return jsonify({
                     "latitude": lat,
                     "longitude": lon,
-                    "altitude": alt
+                    "altitude": alt,
+                    "geoposition": geoloc if geoloc else "ISS is over the ocean"
                 })
     
     return jsonify({"error": "Data not found for the specified epoch"}), 404
@@ -315,7 +316,7 @@ def get_now_data():
         "latitude": lat,
         "longitude": lon,
         "altitude": alt,
-        "geoposition": geoloc if geoloc else "ISS is over the ocean"  # Fallback if no geolocation is found
+        "geoposition": geoloc if geoloc else "ISS is over the ocean"
     })
     
 def main():
