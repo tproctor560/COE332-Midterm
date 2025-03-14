@@ -9,21 +9,23 @@ This Midterm project contains:
 -Additionally, this folder contains a diagram.png of how I interpret the software system to be running.
 
 The objective of this assignment is to use the iss_tracker.py python script to run the ensuing functions:    
-```def fetch_and_store_iss_data```, ```def find_data_point```, ```def compute_location_astropy```, ```def get_geolocation```,  ```def instantaneous_speed```, ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location```, and ```def get_now_data```.    
+```def fetch_and_store_iss_data()```, ```def find_data_point()```, ```def compute_location_astropy()```, ```def get_geolocation()```,  ```def instantaneous_speed()```, ```def entire_data()```, ```def state_vector()```, ```def get_instantaneous_speed()```, ```def location()```, and ```def get_now_data()```.    
 
 These functions are used to build our redis database to then run flask API routes to extract various data analysis regarding the ISS epoch's total data, component data, instantaneous speed data, location data, and time data to inform the user on the public data regarding the ISS.
 
-Additionally, the goal is for the functions: ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location``` and ```def get_now_data```; to set up Flask API routes with @app.route to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
+Additionally, the goal is for the functions: ```def entire_data()```, ```def state_vector()```, ```def get_instantaneous_speed()```, ```def location()``` and ```def get_now_data()```; to set up Flask API routes with ```@app.route``` to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
 
 Routes
 The following route endpoints correlate to the following functions:
-@app.route('/epochs', methods = ['GET']) is used to run def entire_data() (/epochs?limit=int&offset=int can be ran for this function as well, and will provide a dict of epochs to the users specifications)
+```@app.route('/epochs', methods = ['GET'])``` is used to run ```def entire_data()``` (```/epochs?limit=int&offset=int``` can be ran for this function as well, and will provide a dict of epochs to the users specifications)
 
-@app.route('/epochs/<epoch>', methods = ['GET']) is used to run def state_vector(epoch)
+```@app.route('/epochs/<epoch>', methods = ['GET'])``` is used to run ```def state_vector()```
 
-@app.route('/epochs/<epoch>/speed', methods=['GET']) is used to run def get_instantaneous_speed(epoch)
+```@app.route('/epochs/<epoch>/speed', methods=['GET'])``` is used to run ```def get_instantaneous_speed()```
 
-@app.route('/now', methods=['GET']) is used to run def get_now_data()
+```@app.route('/epochs/<epoch>/location', methods=['GET']) is used to run ```def location()```   
+
+```@app.route('/now', methods=['GET'])``` is used to run ```def get_now_data()```
 
 A citation of / link to the ISS data
 
