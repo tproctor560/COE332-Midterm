@@ -24,9 +24,17 @@ rd = get_redis_client()
 ISS_data = "iss_state_vector_data"
 ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
 
-def fetch_and_store_iss_data():
+def fetch_and_store_iss_data(url: str, redis_key: str) -> dict | None:
     """
-    Fetches ISS data **only if not already cached** in Redis.
+    Fetches data from the given URL and stores it in Redis.
+
+    Args:
+        url (str): The URL to fetch ISS data from.
+        redis_key (str): The Redis key for caching the data.
+
+    Returns:
+        dict | None: Parsed ISS data in dictionary format if successful,  
+                     None if an error occurs
     """
     cached_data = rd.get(ISS_data)
     if cached_data:
@@ -40,7 +48,7 @@ def fetch_and_store_iss_data():
             json_data = json.dumps(data)
             rd.set(ISS_data, json_data)
             logging.info("ISS data successfully fetched and stored in Redis.")
-            return data  # ✅ Return fresh data
+            return data  
         else:
             logging.error(f"Failed to fetch ISS data. Status code: {response.status_code}")
             return None
@@ -48,9 +56,14 @@ def fetch_and_store_iss_data():
         logging.error(f"Request failed: {e}")
         return None
         
-def find_data_point(data, *keys):
+def find_data_point(data: dict, *keys: str):
     """
-    Extracts nested values from a JSON-like dictionary using a sequence of keys.
+    Extracts nested values that represent the location of the time stamps and epoch times from a JSON-like dictionary using a sequence of keys.
+
+    Args:   data (dict): The dictionary of a json object to search within.
+            *keys (str): A list of strings that points to the location of the data within a json datatype
+
+    Returns: The extracted value if found, otherwise None.
     """
     current = data
     try:
@@ -69,7 +82,14 @@ def find_data_point(data, *keys):
         logging.error(f"Error accessing data: {e}")
         return None
         
-def compute_location_astropy(sv):
+def compute_location_astropy(sv: dict):
+        """
+ Computes the location of the ISS using the latitude, longitude, and height of the state vector
+
+    Args:   sv (dict): A dictionary containing the ISS state vector data, including position coordinates ('X', 'Y', 'Z') and the timestamp ('EPOCH')
+
+    Returns: the location latitude, longititude, and height (altitude) values.
+    """
     # Extract the state vector coordinates
     x = float(sv['X']['#text'])
     y = float(sv['Y']['#text'])
@@ -88,9 +108,18 @@ def compute_location_astropy(sv):
 
     return loc.lat.value, loc.lon.value, loc.height.value
     
-def get_geolocation(lat, lon):
+def get_geolocation(lat: float, lon: float):
+            """
+ Computes the geolocation of the ISS using the latitude and longitude
+
+    Args:  
+            lat (float): the horizontal latitude of the ISS at a given moment in decimal degrees
+            lon (float): the vertical longitude of the ISS at a given moment in decimal degrees
+
+    Returns: str-> the geopositional address of the ISS at thye given time, or "The Iss is Over the Ocean" if the ISS is over the Ocean
+    """
     geocoder = Nominatim(user_agent="iss_tracker")
-    geoloc = geocoder.reverse((lat, lon), zoom=2, language='en')
+    geoloc = geocoder.reverse((lat, lon), zoom=8, language='en')
     
     # Return the name of the location or None if not found
     if geoloc:
@@ -100,7 +129,7 @@ def get_geolocation(lat, lon):
 
 def instantaneous_speed(x: float, y: float, z: float) -> float:
     """
-    This function is a helper function to find the instantaneous speed of an object given it's velocity vectors
+    This function is to find the instantaneous speed of an object given it's velocity vectors
     
     Args:
         x, y, z (float): the x, y, z velocity vectors
@@ -194,9 +223,16 @@ def get_instantaneous_speed(epoch):
     return jsonify({"error": "epoch not found"}), 404
 
 @app.route('/epochs/<epoch>/location', methods=['GET'])
-def location(epoch):
+def location(epoch: str):
     """
     This function returns the latitude, longitude, altitude, and geoposition for the given epoch.
+    Args: epoch (str): The epoch timestamp to retrieve ISS location data for
+    Returns:             
+            - "latitude" (float): Latitude of the ISS.
+            - "longitude" (float): Longitude of the ISS.
+            - "altitude" (float): Altitude of the ISS in kilometers.
+            - "geoposition" (Optional[str]): The closest geographical location, or "Over the Ocean" if over the ocean.
+
     """
     cached_data = rd.get(ISS_data)
 
@@ -226,6 +262,15 @@ def get_now_data():
     """
     This function returns the location (latitude, longitude, altitude, and geoposition)
     for the closest epoch to the current time.
+
+    Args: None
+    
+    Returns:
+        - "latitude" (float): Latitude of the ISS.
+        - "longitude" (float): Longitude of the ISS.
+        - "altitude" (float): Altitude of the ISS in kilometers.
+        - "geoposition" (Optional[str]): The closest geographical location,  
+              or "ISS is over the ocean" if the ISS is over the ocean.
     """
     cached_data = rd.get(ISS_data)  # Fetch cached data from Redis
 
