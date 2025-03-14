@@ -73,13 +73,10 @@ This will include:
 
 ## Instructions to run the containerized unit tests
 
-
-
-
-this will be followed by the ensuing pytests of the functions we have wrote in
-test_iss_tracker.py.
-
-This will be ran using pytest test_iss_tracker.pyThese will have 4 pass and 2 fail, as the url_xml_pull function used to pull our downloaded data was given an invalid link and correctly returns a failed test, and the state vector test function was struggling to follow the set timeutc = now
+this will be followed by the ensuing pytests of the unittest functions we have wrote in
+test_iss_tracker.py   
+Within the same Docker call upon ```test_iss_tracker.py``` where this will be ran using ```pytest test_iss_tracker.py```.    
+These will have all 6 pass
 
 
 
