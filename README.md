@@ -67,7 +67,7 @@ This will include:
 
 ```curl -X GET "http://127.0.0.1:5000/epochs/2025-02-28T12:56:00.000/speed"``` - this will output the instantaneous for the given specifed epoch (2025-02-28T12:56:00.000) from the xml dataset   
 
-``curl -X GET "http://127.0.0.1:5000/epochs/2025-02-28T12:56:00.000/location"``` - this will output the latitude, longitude, and height for the given specifed epoch (2025-02-28T12:56:00.000) from the dataset   
+```curl -X GET "http://127.0.0.1:5000/epochs/2025-02-28T12:56:00.000/location"``` - this will output the latitude, longitude, and height for the given specifed epoch (2025-02-28T12:56:00.000) from the dataset   
 
 ```curl -X GET "http://127.0.0.1:5000/now"``` - this will output the latitude, longitude, altitude, and geoposition of the closest epoch to the epoch at the current time of the program being ran   
 
