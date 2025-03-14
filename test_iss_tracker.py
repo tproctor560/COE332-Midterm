@@ -1,6 +1,6 @@
 import pytest
 import json
-from iss_tracker import app  # Import Flask app
+from iss_tracker import app, redis_client  # Import Flask app and Redis client
 
 @pytest.fixture
 def client():
@@ -39,7 +39,6 @@ def test_state_vector(client):
     else:
         assert response.get_json()["error"] == "epoch not found" 
 
-
 def test_get_instantaneous_speed(client):
     """Test the /epochs/<epoch>/speed endpoint"""
     test_epoch = "2025-02-28T12:56:00.000"
@@ -51,7 +50,7 @@ def test_get_instantaneous_speed(client):
         assert isinstance(data["speed"], float)  # Speed should be a float
     else:
         assert response.status_code == 404  # If epoch is invalid, return 404
-      
+
 def test_get_location(client):
     """Test the /epochs/<epoch>/location endpoint"""
     test_epoch = "2025-02-28T12:56:00.000"
@@ -72,7 +71,7 @@ def test_get_location(client):
 
     else:
         assert response.status_code == 404  # If epoch is not found, expect 404
-  
+
 def test_get_now_data(client):
     """Test the /now endpoint"""
     response = client.get("/now")
@@ -93,4 +92,18 @@ def test_get_now_data(client):
     else:
         assert response.status_code in [404, 500]
 
+def test_redis_data_population(client):
+    """Test that the Redis database is populated with data on startup if empty"""
+    # Check if the Redis database is populated with ISS data if empty
+    redis_data = redis_client.get('epochs')  # Assuming you store the data under 'epochs' key
+    assert redis_data is not None, "Data should be loaded into Redis"
+    
+    # Test that data is loaded properly by verifying the presence of some expected key or value
+    # Replace 'some_key' with an actual key you expect to exist
+    assert redis_client.hget('epochs', 'some_key') is not None, "Epoch data not loaded correctly"
 
+def test_redis_backup(client):
+    """Test that Redis stores data backups in the local ./data directory"""
+    # Assuming backups are stored in a directory and the Redis container has access to this
+    backup_data = redis_client.get('backup')  # Assuming 'backup' is where backups are stored
+    assert backup_data is not None, "Redis should store data backups"
