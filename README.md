@@ -1,6 +1,6 @@
 # Building a Flask API to track the ISS using Redis and Docker
 
-This Midterm project contains:   
+##This Midterm project contains:   
 
 -two python scripts ```iss_tracker.py``` & ```test_iss_tracker.py```   
 -the ```Dockerfile``` needed to build the image to run these containerized programs   
@@ -15,7 +15,7 @@ These functions are used to build our redis database to then run flask API route
 
 Additionally, the goal is for the functions: ```def entire_data()```, ```def state_vector()```, ```def get_instantaneous_speed()```, ```def location()``` and ```def get_now_data()```; to set up Flask API routes with ```@app.route``` to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
 
-Routes
+##Routes
 The following route endpoints correlate to the following functions:
 ```@app.route('/epochs', methods = ['GET'])``` is used to run ```def entire_data()``` (```/epochs?limit=int&offset=int``` can be ran for this function as well, and will provide a dict of epochs to the users specifications)
 
@@ -27,9 +27,8 @@ The following route endpoints correlate to the following functions:
 
 ```@app.route('/now', methods=['GET'])``` is used to run ```def get_now_data()```
 
-A citation of / link to the ISS data
 
-Data
+##Data
 The data can be accessed through the following link: https://spotthestation.nasa.gov/trajectory_data.cfm
 
 Where the user can then download the tracking data as an xml file here: https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml
@@ -43,7 +42,7 @@ ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_
  
 
 
-Deploying the App from docker Compose
+##Deploying the App from docker Compose
 A container for this code can be made with the following docker commands using the file and contents of: ```docker-compose.yml```   
 
 within your desired directory run: ```docker-compose up --build``` This will start the container, as well as build it in the default driver.   
@@ -51,7 +50,7 @@ within your desired directory run: ```docker-compose up --build``` This will sta
 you can check that both your flask API and redis database are setup using ```docker ps``` to output what is currently running
 
 
-Running as a Flask App
+##Running as a Flask App
 The line app = Flask(__name__) allows the file to turn into a Flask API server. From there the user should open a second terminal window and naviaget back to the same folder that holds these python scripts and where the generated flask api server is currently running. Then, the user can run the following structure to call upon the routes that were written in the iss_tracker.py file in the localhost and default port = 5000: ```curl -X GET "http://127.0.0.1:5000/epoch"``` where, 127.0.0.1:5000 is generated from the ``* running on ...``` line in the terminal window in which the Flask API is running.  
 
 /epoch can be replaced with any of the endpoints given below depending on the desired function   
@@ -72,7 +71,7 @@ This will include:
 
 ```curl -X GET "http://127.0.0.1:5000/now"``` - this will output the latitude, longitude, altitude, and geoposition of the closest epoch to the epoch at the current time of the program being ran   
 
-Instructions to run the containerized unit tests
+##Instructions to run the containerized unit tests
 
 
 
@@ -84,10 +83,10 @@ This will be ran using pytest test_iss_tracker.pyThese will have 4 pass and 2 fa
 
 
 
-Diagram.png: Include a software diagram that illustrates what you deem to be the most important parts of your project. The diagram should be visible from your README.
+##Diagram.png: Include a software diagram that illustrates what you deem to be the most important parts of your project. The diagram should be visible from your README.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Chatgpt acknowledgment
+##Chatgpt acknowledgment
 Chatgpt was used to assist in this code primarily in the python function scripts of analyzing the timestamp dates
 
 As well as in the docker file build, upon using previous docker formats, I wasn't outputting the desired results and Chatgpt helped me run the docker container while also outputting my script returns.
