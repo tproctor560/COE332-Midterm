@@ -9,42 +9,34 @@ class TestISSTrackerApp(unittest.TestCase):
     def setUpClass(cls):
         """Set up the Flask test client and Redis mock."""
         cls.client = app.test_client()
-        
+
     @patch.object(rd, 'get', return_value=json.dumps({
-    'ndm': {
-        'oem': {
-            'body': {
-                'segment': {
-                    'data': {
-                        'stateVector': [{
-                            'EPOCH': '2025-069T12:32:00.000Z',
-                            'X': {'#text': '4000'},
-                            'Y': {'#text': '5000'},
-                            'Z': {'#text': '6000'},
-                            'X_DOT': {'#text': '0.1'},
-                            'Y_DOT': {'#text': '0.1'},
-                            'Z_DOT': {'#text': '0.1'}
-                        }]
+        'ndm': {
+            'oem': {
+                'body': {
+                    'segment': {
+                        'data': {
+                            'stateVector': [{
+                                'EPOCH': '2025-069T12:32:00.000Z',
+                                'X': {'#text': '4000'},
+                                'Y': {'#text': '5000'},
+                                'Z': {'#text': '6000'},
+                                'X_DOT': {'#text': '0.1'},
+                                'Y_DOT': {'#text': '0.1'},
+                                'Z_DOT': {'#text': '0.1'}
+                            }]
+                        }
                     }
                 }
             }
         }
-    }
-}))  # Mock Redis with fake data
+    }))  # Mock Redis with fake data
     def test_fetch_and_store_iss_data_with_cache(self, mock_get):
         """Test fetching ISS data when data is in Redis cache."""
         response = self.client.get('/epochs')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertTrue(len(data) > 0)
-    
-    @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
-    def test_fetch_and_store_iss_data_with_cache(self, mock_get):
-        """Test fetching ISS data when data is in Redis cache."""
-        response = self.client.get('/epochs')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertTrue(len(data) > 0)  # Assert that some data is returned
     
     @patch.object(rd, 'get', return_value=json.dumps({'ndm': {'oem': {'body': {'segment': {'data': {'stateVector': [{'EPOCH': '2025-069T12:32:00.000Z', 'X': {'#text': '4000'}, 'Y': {'#text': '5000'}, 'Z': {'#text': '6000'}, 'X_DOT': {'#text': '0.1'}, 'Y_DOT': {'#text': '0.1'}, 'Z_DOT': {'#text': '0.1'}}}]}}}}}}))  # Mock Redis with fake data
     def test_get_epoch(self, mock_get):
