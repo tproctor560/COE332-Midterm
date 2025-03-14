@@ -85,7 +85,8 @@ This will be ran using pytest test_iss_tracker.pyThese will have 4 pass and 2 fa
 
 ## Diagram
 Include a software diagram that illustrates what you deem to be the most important parts of your project. The diagram should be visible from your README.
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+![diagram](https://github.com/user-attachments/assets/1e2c2e60-2e09-4907-940a-49d89cf2204c)
 
 ## Chatgpt acknowledgment
 Chatgpt was used to assist in this code primarily in the python function scripts of analyzing the timestamp dates
