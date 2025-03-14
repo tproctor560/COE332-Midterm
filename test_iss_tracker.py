@@ -1,6 +1,6 @@
 import pytest
 import json
-from iss_tracker import app, redis_client  # Import Flask app and Redis client
+from iss_tracker import app, rd  # Import Flask app and Redis client
 
 @pytest.fixture
 def client():
@@ -95,15 +95,15 @@ def test_get_now_data(client):
 def test_redis_data_population(client):
     """Test that the Redis database is populated with data on startup if empty"""
     # Check if the Redis database is populated with ISS data if empty
-    redis_data = redis_client.get('epochs')  # Assuming you store the data under 'epochs' key
+    redis_data = rd.get('epochs')  # Assuming you store the data under 'epochs' key
     assert redis_data is not None, "Data should be loaded into Redis"
     
     # Test that data is loaded properly by verifying the presence of some expected key or value
     # Replace 'some_key' with an actual key you expect to exist
-    assert redis_client.hget('epochs', 'some_key') is not None, "Epoch data not loaded correctly"
+    assert rd.hget('epochs', 'some_key') is not None, "Epoch data not loaded correctly"
 
 def test_redis_backup(client):
     """Test that Redis stores data backups in the local ./data directory"""
     # Assuming backups are stored in a directory and the Redis container has access to this
-    backup_data = redis_client.get('backup')  # Assuming 'backup' is where backups are stored
+    backup_data = rd.get('backup')  # Assuming 'backup' is where backups are stored
     assert backup_data is not None, "Redis should store data backups"
