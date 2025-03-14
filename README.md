@@ -8,7 +8,10 @@ This Midterm project contains:
 -a ```requirements.txt``` that lists non-standard Python libraries that must be installed for this project file   
 -Additionally, this folder contains a diagram.png of how I interpret the software system to be running.
 
-The objective of this assignment is to use the iss_tracker.py python script to run the ensuing functions: ```def fetch_and_store_iss_data```, ```def find_data_point```, ```def compute_location_astropy```, ```def get_geolocation```,  ```def instantaneous_speed```, ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location```, and ```def get_now_data```. These functions are used to build our redis database to then run flask API routes to extract various data analysis regarding the ISS epoch's total data, component data, instantaneous speed data, location data, and time data to inform the user on the public data regarding the ISS.
+The objective of this assignment is to use the iss_tracker.py python script to run the ensuing functions:    
+```def fetch_and_store_iss_data```, ```def find_data_point```, ```def compute_location_astropy```, ```def get_geolocation```,  ```def instantaneous_speed```, ```def entire_data```, ```def state_vector```, ```def get_instantaneous_speed```, ```def location```, and ```def get_now_data```.    
+
+These functions are used to build our redis database to then run flask API routes to extract various data analysis regarding the ISS epoch's total data, component data, instantaneous speed data, location data, and time data to inform the user on the public data regarding the ISS.
 
 Additionally, the goal is for the functions: ```def entire_data```, def state_vector```, ```def get_instantaneous_speed```, ```def location``` and ```def get_now_data```; to set up Flask API routes with @app.route to then call upon these funtcions using curl commands to run from the server for various endpoints, with the data in the redis database.
 
