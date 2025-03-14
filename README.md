@@ -35,10 +35,11 @@ The data can be accessed through the following link: https://spotthestation.nasa
 Where the user can then download the tracking data as an xml file here: https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml
 
 It is then built into the redis database using the ```def fetch_and_store_iss_data()``` and ```def get_redis_client()``` functions with the downloaded URL being set above like:    
-```rd = get_redis_client()   
+rd = get_redis_client()   
 
 ISS_data = "iss_state_vector_data"   
-ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"```   
+ISS_XML_URL = "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml"
+ 
 
 
 Deploying the App from docker Compose
