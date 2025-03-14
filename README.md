@@ -55,7 +55,7 @@ The line ```app = Flask(__name__)``` allows the file to turn into a Flask API se
 
 /epoch can be replaced with any of the endpoints given below depending on the desired function   
 
-Output  
+### Output  
 The output will be the analysis of the downloaded data from our functions.   
 
 This will include:   
