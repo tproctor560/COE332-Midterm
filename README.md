@@ -50,8 +50,8 @@ within your desired directory run: ```docker-compose up --build``` This will sta
 you can check that both your flask API and redis database are setup using ```docker ps``` to output what is currently running
 
 
-##Running as a Flask App
-The line app = Flask(__name__) allows the file to turn into a Flask API server. From there the user should open a second terminal window and naviaget back to the same folder that holds these python scripts and where the generated flask api server is currently running. Then, the user can run the following structure to call upon the routes that were written in the iss_tracker.py file in the localhost and default port = 5000: ```curl -X GET "http://127.0.0.1:5000/epoch"``` where, 127.0.0.1:5000 is generated from the ``* running on ...``` line in the terminal window in which the Flask API is running.  
+### Running as a Flask App:
+The line ```app = Flask(__name__)``` allows the file to turn into a Flask API server. From there the user should open a second terminal window and naviaget back to the same folder that holds these python scripts and where the generated flask api server is currently running. Then, the user can run the following structure to call upon the routes that were written in the iss_tracker.py file in the localhost and default port = 5000: ```curl -X GET "http://127.0.0.1:5000/epoch"``` where, ```127.0.0.1:5000``` is generated from the ```* running on ...``` line in the terminal window in which the Flask API is running.  
 
 /epoch can be replaced with any of the endpoints given below depending on the desired function   
 
