@@ -88,6 +88,4 @@ Include a software diagram that illustrates what you deem to be the most importa
 ## Chatgpt acknowledgment
 Chatgpt was used to assist in this code primarily in the python function scripts of analyzing the timestamp dates
 
-As well as in the docker file build, upon using previous docker formats, I wasn't outputting the desired results and Chatgpt helped me run the docker container while also outputting my script returns.
-
-Finally, chatgpt was used to help build the test_iss_tracking.py script as i missed the class that discusses error testing flask API's and wasn't following the readthedocs
+Finally, chatgpt was used to help build the test_iss_tracking.py script to help with the flask routes, and ensuring connection to import the iss_tracker file, and remain connected to redis.
